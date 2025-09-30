@@ -48,12 +48,12 @@ jobs:
       # step 7: copy file to VM
       - name: Copy files to VM
         run: |
-          scp -o StrictHostKeyChecking=no app.py requirements.txt ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
+          scp -o StrictHostKeyChecking=no app.py requirements.txt ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/app/
 
       # step 8: Install Python & dependencies on VM
       - name: Install Python & dependencies on VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
             sudo apt-get update -y
             sudo apt-get install -y python3 python3-pip
             cd ~/app
@@ -63,7 +63,7 @@ jobs:
       # step 9: deploy app remotely
       - name: Deploy app remotely
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
             cd ~/app
             # Kill previous process if running
             pkill -f "python3 app.py" || true
