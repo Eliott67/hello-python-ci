@@ -38,3 +38,39 @@ jobs:
           nohup python app.py &
           sleep 2
           echo "App started on localhost"
+
+      # step 6: start SSH agent
+      - name: start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # step 7: copy file to VM
+      - name: Copy files to VM
+        run: |
+          scp -o StrictHostKeyChecking=no app.py requirements.txt ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
+
+      # step 8: Install Python & dependencies on VM
+      - name: Install Python & dependencies on VM
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            sudo apt-get update -y
+            sudo apt-get install -y python3 python3-pip
+            cd ~/app
+            pip3 install -r requirements.txt
+          EOF
+
+      # step 9: deploy app remotely
+      - name: Deploy app remotely
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/app
+            # Kill previous process if running
+            pkill -f "python3 app.py" || true
+            # Run app in background and redirect logs
+            nohup python3 app.py > app.log 2>&1 &
+            sleep 2
+            tail -n 20 app.log
+          EOF
+
+       
