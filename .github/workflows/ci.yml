@@ -39,7 +39,7 @@ jobs:
           sleep 2
           echo "App started on localhost"
 
-      # step 6: start SSH agent
+      # step 6: start SSH agent bis
       - name: start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
